@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { responsiveFontSizes } from '@mui/material';
+
+import { AppContext } from '../Home';
 
 const UserInfo = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(null);
+    const { isAuthenticated, setIsAuthenticated } = useContext(AppContext);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -17,9 +18,9 @@ const UserInfo = () => {
                 },
             });
             if (!response.ok) {
-                setIsAuthenticated(null); 
+                setIsAuthenticated(false); 
             } else {
-                setIsAuthenticated(response.json());
+                setIsAuthenticated(true);
             }
         };
 
@@ -30,7 +31,7 @@ const UserInfo = () => {
         <Container>
             {isAuthenticated ? (
                 <>
-                    <Typography variant="body1">This is only visible to authenticated users.</Typography>
+                    <Typography variant="body1">User is logged in.</Typography>
                 </>
             ) : (
                 <Typography variant="body1">Log in to view user info.</Typography>

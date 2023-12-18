@@ -27,8 +27,9 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 
 import bcrypt
 import jwt
-from py4web import action, request, response, abort
 import os
+import mimetypes
+from py4web import action, request, response, abort
 from .common import db
 
 SECRET_KEY = 'your-secret-key'  # TODO: Replace with actual secret key
@@ -58,29 +59,12 @@ def token_required(f):
     return decorated
 
 
-@action('index')
-def index():
-    # Construct an absolute path to the React index.html file.
-    APP_FOLDER = os.path.dirname(__file__)
-    file_path = os.path.join(APP_FOLDER, 'static', 'build', 'index.html')
-
-    # Ensure the file exists
-    if not os.path.isfile(file_path):
-        # Handle the error appropriately (e.g., return a 404 page)
-        return 'File not found', 404
-
-    with open(file_path, 'rb') as f:
-        response.headers['Content-Type'] = 'text/html'
-        return f.read()
-
-
 @action('user', method=['GET'])
 @token_required
 def user():
     """Example of a protected endpoint that requires a valid JWT token to be included in the Authorization header."""
     response.status = 200
     return {}
-
 
 
 @action('signup', method=['POST', 'OPTIONS'])
@@ -139,3 +123,47 @@ def signin():
     else:
         response.status = 401
         return {"error": "Invalid credentials"}
+
+
+@action('index')
+def catch_all(path=None):
+    print("default page being served")
+    # Construct an absolute path to the React index.html file.
+    APP_FOLDER = os.path.dirname(__file__)
+    file_path = os.path.join(APP_FOLDER, 'static', 'build', 'index.html')
+
+    # Ensure the file exists
+    if not os.path.isfile(file_path):
+        # Handle the error appropriately (e.g., return a 404 page)
+        return 'File not found', 404
+
+    with open(file_path, 'rb') as f:
+        response.headers['Content-Type'] = 'text/html'
+        return f.read()
+
+
+# @action('index')
+# @action('react-app/<path:path>', method=['GET'])
+# def catch_all(path=None):
+#     # Path to your React app's build directory
+#     app_build_folder = os.path.join(os.path.dirname(__file__), 'static', 'build')
+
+#     # Serve static files (e.g., CSS, JS, images)
+#     if path is not None and "." in path:  # Checks if the path is likely a file
+#         file_path = os.path.join(app_build_folder, path)
+#         if os.path.isfile(file_path):
+#             # Infer the content type (e.g., text/css, application/javascript)
+#             content_type, _ = mimetypes.guess_type(file_path)
+#             if content_type:
+#                 response.headers['Content-Type'] = content_type
+#                 print(f"serving {content_type}")
+#             return open(file_path, 'rb').read()
+
+#     # Serve index.html for any other path
+#     index_file_path = os.path.join(app_build_folder, 'index.html')
+#     if os.path.isfile(index_file_path):
+#         print("serving index.html")
+#         response.headers['Content-Type'] = 'text/html'
+#         return open(index_file_path, 'rb').read()
+
+#     return 'Not Found', 404

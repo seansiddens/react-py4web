@@ -24,6 +24,7 @@ const AuthenticatedRoute = ({children}) => {
  * @return {object} JSX
  */
 function App() {
+
   return (
     <BrowserRouter>
       <Routes>
